@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tankulator ⛽</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f13;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f0f0f0;
+      padding: 24px;
+    }
+
+    .card {
+      background: #1a1a24;
+      border: 1px solid #2e2e42;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header h1 span { color: #f5a623; }
+
+    .header p {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap {
+      position: relative;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      background: #0f0f13;
+      border: 1px solid #2e2e42;
+      border-radius: 10px;
+      padding: 12px 52px 12px 16px;
+      font-size: 1rem;
+      color: #f0f0f0;
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: textfield;
+      -moz-appearance: textfield;
+    }
+
+    input[type="number"]::-webkit-inner-spin-button,
+    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
+
+    input[type="number"]:focus { border-color: #f5a623; }
+
+    .unit {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: #666;
+      pointer-events: none;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px;
+      background: #f5a623;
+      color: #0f0f13;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button:hover { background: #ffb83f; }
+    button:active { transform: scale(0.98); }
+
+    .result {
+      margin-top: 28px;
+      background: #0f0f13;
+      border: 1px solid #2e2e42;
+      border-radius: 14px;
+      padding: 24px;
+      display: none;
+    }
+
+    .result.visible { display: block; }
+
+    .result-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #888;
+      margin-bottom: 16px;
+    }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #1a1a24;
+      font-size: 0.9rem;
+      color: #bbb;
+    }
+
+    .result-row:last-of-type { border-bottom: none; }
+
+    .result-row span:last-child { color: #f0f0f0; font-weight: 500; }
+
+    .result-total {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #2e2e42;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-total .label { font-size: 0.9rem; color: #aaa; }
+    .result-total .value { font-size: 1.6rem; font-weight: 700; color: #f5a623; }
+
+    .error {
+      margin-top: 12px;
+      color: #e05a5a;
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+
+    .error.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="header">
+      <h1>Tank<span>ulator</span> ⛽</h1>
+      <p>Calculate the cost of your road trip</p>
+    </div>
+
+    <div class="field">
+      <label>Distance driven</label>
+      <div class="input-wrap">
+        <input type="number" id="distance" placeholder="0" min="0" step="1" />
+        <span class="unit">km</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Fuel consumption</label>
+      <div class="input-wrap">
+        <input type="number" id="consumption" placeholder="0.0" min="0" step="0.1" />
+        <span class="unit">L/mil</span>
+      </div>
+      <p class="hint">1 mil = 10 km &nbsp;·&nbsp; e.g. 0.7 L/mil is very efficient, 1.2 L/mil is average</p>
+    </div>
+
+    <div class="field">
+      <label>Fuel price</label>
+      <div class="input-wrap">
+        <input type="number" id="fuelPrice" placeholder="0.00" min="0" step="0.01" />
+        <span class="unit">kr/L</span>
+      </div>
+    </div>
+
+    <button onclick="calculate()">Calculate ⚡</button>
+
+    <p class="error" id="error">Please fill in all fields with valid values.</p>
+
+    <div class="result" id="result">
+      <p class="result-title">Trip breakdown</p>
+      <div class="result-row"><span>Distance</span><span id="r-distance">—</span></div>
+      <div class="result-row"><span>Mils driven</span><span id="r-mil">—</span></div>
+      <div class="result-row"><span>Fuel consumed</span><span id="r-fuel">—</span></div>
+      <div class="result-row"><span>Fuel price</span><span id="r-price">—</span></div>
+      <div class="result-total">
+        <span class="label">Total cost</span>
+        <span class="value" id="r-total">—</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function calculate() {
+      const distance    = parseFloat(document.getElementById("distance").value);
+      const consumption = parseFloat(document.getElementById("consumption").value);
+      const fuelPrice   = parseFloat(document.getElementById("fuelPrice").value);
+
+      const error  = document.getElementById("error");
+      const result = document.getElementById("result");
+
+      if (!distance || !consumption || !fuelPrice || distance <= 0 || consumption <= 0 || fuelPrice <= 0) {
+        error.classList.add("visible");
+        result.classList.remove("visible");
+        return;
+      }
+
+      error.classList.remove("visible");
+
+      const mils         = distance / 10;
+      const fuelUsed     = mils * consumption;
+      const totalCost    = fuelUsed * fuelPrice;
+
+      document.getElementById("r-distance").textContent = `${distance.toLocaleString("sv-SE")} km`;
+      document.getElementById("r-mil").textContent      = `${mils.toLocaleString("sv-SE", { maximumFractionDigits: 1 })} mil`;
+      document.getElementById("r-fuel").textContent     = `${fuelUsed.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} L`;
+      document.getElementById("r-price").textContent    = `${fuelPrice.toLocaleString("sv-SE", { minimumFractionDigits: 2 })} kr/L`;
+      document.getElementById("r-total").textContent    = `${totalCost.toLocaleString("sv-SE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
+
+      result.classList.add("visible");
+    }
+
+    document.addEventListener("keydown", e => { if (e.key === "Enter") calculate(); });
+  </script>
+</body>
+</html>
