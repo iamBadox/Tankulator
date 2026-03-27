@@ -1,5 +1,465 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sv">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tankulator ⛽</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #0f0f13;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: #f0f0f0;
+      padding: 24px;
+    }
+
+    .card {
+      background: #1a1a24;
+      border: 1px solid #2e2e42;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    }
+
+    .lang-switcher {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .lang-btn {
+      font-size: 1.4rem;
+      background: none;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 2px 6px;
+      transition: border-color 0.2s, transform 0.1s;
+      line-height: 1;
+      width: auto;
+      margin-top: 0;
+    }
+
+    .lang-btn:hover { transform: scale(1.15); }
+    .lang-btn.active { border-color: #f5a623; }
+    .lang-btn:active { transform: scale(0.95); }
+
+    .header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .header h1 span { color: #f5a623; }
+
+    .header p {
+      color: #888;
+      font-size: 0.9rem;
+      margin-top: 6px;
+    }
+
+    .field { margin-bottom: 20px; }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .input-wrap { position: relative; }
+
+    input[type="text"] {
+      width: 100%;
+      background: #0f0f13;
+      border: 1px solid #2e2e42;
+      border-radius: 10px;
+      padding: 12px 52px 12px 16px;
+      font-size: 1rem;
+      color: #f0f0f0;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus { border-color: #f5a623; }
+
+    .unit {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      color: #666;
+      pointer-events: none;
+    }
+
+    .hint {
+      font-size: 0.75rem;
+      color: #555;
+      margin-top: 6px;
+    }
+
+    button.calc-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 14px;
+      background: #f5a623;
+      color: #0f0f13;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button.calc-btn:hover { background: #ffb83f; }
+    button.calc-btn:active { transform: scale(0.98); }
+
+    .result {
+      margin-top: 28px;
+      background: #0f0f13;
+      border: 1px solid #2e2e42;
+      border-radius: 14px;
+      padding: 24px;
+      display: none;
+    }
+
+    .result.visible { display: block; }
+
+    .result-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: #888;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .info-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2e2e42;
+      border: 1px solid #444;
+      color: #aaa;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: default;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #12121a;
+      border: 1px solid #2e2e42;
+      border-radius: 12px;
+      padding: 16px;
+      width: 280px;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #bbb;
+      text-transform: none;
+      letter-spacing: 0;
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #2e2e42;
+    }
+
+    .tooltip b { color: #f0f0f0; }
+    .tooltip a { color: #f5a623; text-decoration: none; }
+    .tooltip a:hover { text-decoration: underline; }
+
+    .info-wrap:hover .tooltip,
+    .info-wrap:focus-within .tooltip { display: block; }
+
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #1a1a24;
+      font-size: 0.9rem;
+      color: #bbb;
+    }
+
+    .result-row:last-of-type { border-bottom: none; }
+    .result-row span:last-child { color: #f0f0f0; font-weight: 500; }
+
+    .result-total {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #2e2e42;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .result-total .label { font-size: 0.9rem; color: #aaa; }
+    .result-total .value { font-size: 1.6rem; font-weight: 700; color: #f5a623; }
+
+    .error {
+      margin-top: 12px;
+      color: #e05a5a;
+      font-size: 0.85rem;
+      text-align: center;
+      display: none;
+    }
+
+    .error.visible { display: block; }
+  </style>
+</head>
+<body>
+  <div class="card">
+
+    <div class="lang-switcher">
+      <button class="lang-btn active" id="btn-sv" onclick="setLang('sv')" title="Svenska">🇸🇪</button>
+      <button class="lang-btn" id="btn-en" onclick="setLang('en')" title="English">🇬🇧</button>
+    </div>
+
+    <div class="header">
+      <h1>Tank<span>ulator</span> ⛽</h1>
+      <p id="t-subtitle"></p>
+    </div>
+
+    <div class="field">
+      <label id="t-label-distance"></label>
+      <div class="input-wrap">
+        <input type="text" id="distance" inputmode="decimal" />
+        <span class="unit">km</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label id="t-label-consumption"></label>
+      <div class="input-wrap">
+        <input type="text" id="consumption" inputmode="decimal" />
+        <span class="unit">L/mil</span>
+      </div>
+      <p class="hint" id="t-hint"></p>
+    </div>
+
+    <div class="field">
+      <label id="t-label-fuel"></label>
+      <div class="input-wrap">
+        <input type="text" id="fuelPrice" inputmode="decimal" />
+        <span class="unit">kr/L</span>
+      </div>
+    </div>
+
+    <button class="calc-btn" onclick="calculate()" id="t-btn"></button>
+
+    <p class="error" id="error"></p>
+
+    <div class="result" id="result">
+      <p class="result-title">
+        <span id="t-breakdown"></span>
+        <span class="info-wrap">
+          <span class="info-btn" tabindex="0">i</span>
+          <span class="tooltip" id="t-tooltip"></span>
+        </span>
+      </p>
+      <div class="result-row"><span id="t-r-distance"></span><span id="r-distance">—</span></div>
+      <div class="result-row"><span id="t-r-mil"></span><span id="r-mil">—</span></div>
+      <div class="result-row"><span id="t-r-fuel"></span><span id="r-fuel">—</span></div>
+      <div class="result-row"><span id="t-r-price"></span><span id="r-price">—</span></div>
+      <div class="result-row"><span id="t-r-wear"></span><span id="r-wear">—</span></div>
+      <div class="result-total">
+        <span class="label" id="t-total"></span>
+        <span class="value" id="r-total">—</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const WEAR_RATE = 1.85;
+
+    const i18n = {
+      sv: {
+        lang:         "sv",
+        subtitle:     "Beräkna kostnaden för din resa",
+        labelDist:    "Körsträcka",
+        labelCons:    "Bränsleförbrukning",
+        labelFuel:    "Bensinpris",
+        hint:         "1 mil = 10 km &nbsp;·&nbsp; t.ex. 0,7 L/mil är mycket bra, 1,2 L/mil är normalt",
+        btn:          "Beräkna ⚡",
+        error:        "Fyll i alla fält med giltiga värden.",
+        breakdown:    "Reseöversikt",
+        rDist:        "Körsträcka",
+        rMil:         "Antal mil",
+        rFuel:        "Bränsle",
+        rPrice:       "Bensinpris",
+        rWear:        "Slitage (1,85 kr/km)",
+        rTotal:       "Total kostnad",
+        distPH:       "0",
+        consPH:       "0,0",
+        fuelPH:       "0,00",
+        locale:       "sv-SE",
+        tooltip: `<b>Så här beräknas det</b><br><br>
+          <b>Antal mil</b> = körsträcka ÷ 10<br>
+          <b>Bränsle</b> = mil × förbrukning (L/mil)<br>
+          <b>Bränslekostnad</b> = bränsle × pris per liter<br><br>
+          <b>Slitage</b> = körsträcka × 1,85 kr/km<br>
+          Baserat på Skatteverkets och
+          <a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsens</a>
+          schablonbelopp för milersättning och skatteändamål.<br><br>
+          <b>Totalt</b> = bränslekostnad + slitage`
+      },
+      en: {
+        lang:         "en",
+        subtitle:     "Calculate the cost of your road trip",
+        labelDist:    "Distance driven",
+        labelCons:    "Fuel consumption",
+        labelFuel:    "Fuel price",
+        hint:         "1 mil = 10 km &nbsp;·&nbsp; e.g. 0.7 L/mil is very efficient, 1.2 L/mil is average",
+        btn:          "Calculate ⚡",
+        error:        "Please fill in all fields with valid values.",
+        breakdown:    "Trip breakdown",
+        rDist:        "Distance",
+        rMil:         "Mils driven",
+        rFuel:        "Fuel consumed",
+        rPrice:       "Fuel price",
+        rWear:        "Wear & tear (1.85 kr/km)",
+        rTotal:       "Total cost",
+        distPH:       "0",
+        consPH:       "0.0",
+        fuelPH:       "0.00",
+        locale:       "en-GB",
+        tooltip: `<b>How it's calculated</b><br><br>
+          <b>Mils driven</b> = distance ÷ 10<br>
+          <b>Fuel used</b> = mils × consumption (L/mil)<br>
+          <b>Fuel cost</b> = fuel used × price per litre<br><br>
+          <b>Wear &amp; tear</b> = distance × 1.85 kr/km<br>
+          Based on the standard rate set by the Swedish Transport Agency
+          (<a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsen</a>),
+          used for tax deductions and expense reimbursement.<br><br>
+          <b>Total</b> = fuel cost + wear &amp; tear`
+      }
+    };
+
+    let currentLang = "sv";
+
+    function setLang(lang) {
+      currentLang = lang;
+      const t = i18n[lang];
+      document.documentElement.lang = lang;
+
+      document.getElementById("t-subtitle").textContent        = t.subtitle;
+      document.getElementById("t-label-distance").textContent  = t.labelDist;
+      document.getElementById("t-label-consumption").textContent = t.labelCons;
+      document.getElementById("t-label-fuel").textContent      = t.labelFuel;
+      document.getElementById("t-hint").innerHTML              = t.hint;
+      document.getElementById("t-btn").textContent             = t.btn;
+      document.getElementById("error").textContent             = t.error;
+      document.getElementById("t-breakdown").textContent       = t.breakdown;
+      document.getElementById("t-tooltip").innerHTML           = t.tooltip;
+      document.getElementById("t-r-distance").textContent      = t.rDist;
+      document.getElementById("t-r-mil").textContent           = t.rMil;
+      document.getElementById("t-r-fuel").textContent          = t.rFuel;
+      document.getElementById("t-r-price").textContent         = t.rPrice;
+      document.getElementById("t-r-wear").innerHTML            = t.rWear;
+      document.getElementById("t-total").textContent           = t.rTotal;
+
+      document.getElementById("distance").placeholder    = t.distPH;
+      document.getElementById("consumption").placeholder = t.consPH;
+      document.getElementById("fuelPrice").placeholder   = t.fuelPH;
+
+      document.getElementById("btn-sv").classList.toggle("active", lang === "sv");
+      document.getElementById("btn-en").classList.toggle("active", lang === "en");
+
+      // Re-render results if visible
+      if (document.getElementById("result").classList.contains("visible")) calculate(true);
+    }
+
+    function parseNum(val) {
+      return parseFloat(val.trim().replace(/\s/g, "").replace(",", "."));
+    }
+
+    function calculate(silent = false) {
+      const distance    = parseNum(document.getElementById("distance").value);
+      const consumption = parseNum(document.getElementById("consumption").value);
+      const fuelPrice   = parseNum(document.getElementById("fuelPrice").value);
+
+      const error  = document.getElementById("error");
+      const result = document.getElementById("result");
+      const locale = i18n[currentLang].locale;
+
+      if (!distance || !consumption || !fuelPrice || distance <= 0 || consumption <= 0 || fuelPrice <= 0) {
+        if (!silent) {
+          error.classList.add("visible");
+          result.classList.remove("visible");
+        }
+        return;
+      }
+
+      error.classList.remove("visible");
+
+      const mils      = distance / 10;
+      const fuelUsed  = mils * consumption;
+      const fuelCost  = fuelUsed * fuelPrice;
+      const wearCost  = distance * WEAR_RATE;
+      const totalCost = fuelCost + wearCost;
+
+      const fmt = (n, opts) => n.toLocaleString(locale, opts);
+
+      document.getElementById("r-distance").textContent = `${fmt(distance)} km`;
+      document.getElementById("r-mil").textContent      = `${fmt(mils, { maximumFractionDigits: 1 })} mil`;
+      document.getElementById("r-fuel").textContent     = `${fmt(fuelUsed, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} L`;
+      document.getElementById("r-price").textContent    = `${fmt(fuelPrice, { minimumFractionDigits: 2 })} kr/L`;
+      document.getElementById("r-wear").textContent     = `${fmt(wearCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
+      document.getElementById("r-total").textContent    = `${fmt(totalCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
+
+      result.classList.add("visible");
+    }
+
+    // Boot in Swedish
+    setLang("sv");
+
+    document.addEventListener("keydown", e => { if (e.key === "Enter") calculate(); });
+  </script>
+</body>
+</html>
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />

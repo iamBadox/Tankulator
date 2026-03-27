@@ -4,6 +4,22 @@ All notable changes to Tankulator will be documented here.
 
 ---
 
+## [2.0.0] – 2026-03-27
+
+### Added
+- 🇸🇪 / 🇬🇧 flag switcher in the top right corner — click to toggle language
+- Full Swedish translation across all labels, hints, buttons, error messages, and results
+- Full English translation as an alternative
+- Swedish tooltip: explains calculations in Swedish, references Transportstyrelsen & Skatteverket
+- English tooltip: references the Swedish Transport Agency (Transportstyrelsen) in English
+- Results re-render automatically when switching language
+- App boots in Swedish by default
+
+### Changed
+- Output numbers now formatted per locale (Swedish: commas, English: dots)
+
+---
+
 ## [1.3.0] – 2026-03-27
 
 ### Changed
