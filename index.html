@@ -65,24 +65,31 @@
     .mode-btn:hover:not(.active) { color: #aaa; }
 
     /* Lang flags */
-    .lang-switcher { display: flex; gap: 8px; }
-
-    .lang-btn {
-      font-size: 1.4rem;
-      background: none;
-      border: 2px solid transparent;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 2px 6px;
-      transition: border-color 0.2s, transform 0.1s;
-      line-height: 1;
-      width: auto;
-      margin-top: 0;
+    .lang-switcher {
+      display: flex;
+      background: #0f0f13;
+      border: 1px solid #2e2e42;
+      border-radius: 10px;
+      overflow: hidden;
     }
 
-    .lang-btn:hover { transform: scale(1.15); }
-    .lang-btn.active { border-color: #f5a623; }
-    .lang-btn:active { transform: scale(0.95); }
+    .lang-btn {
+      background: none;
+      border: none;
+      padding: 6px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      color: #555;
+      transition: background 0.2s, color 0.2s;
+      width: auto;
+      margin-top: 0;
+      border-radius: 0;
+    }
+
+    .lang-btn.active { background: #2e2e42; color: #f0f0f0; }
+    .lang-btn:hover:not(.active) { color: #aaa; }
 
     .header { text-align: center; margin-bottom: 36px; }
 
@@ -136,7 +143,21 @@
 
     .hint { font-size: 0.75rem; color: #555; margin-top: 6px; }
 
-    button.calc-btn {
+    button.reset-btn {
+      width: 100%;
+      margin-top: 8px;
+      padding: 11px;
+      background: none;
+      color: #666;
+      border: 1px solid #2e2e42;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    button.reset-btn:hover { border-color: #555; color: #aaa; }
       width: 100%;
       margin-top: 8px;
       padding: 14px;
@@ -282,8 +303,8 @@
         <button class="mode-btn" id="btn-ev" onclick="setMode('ev')">⚡</button>
       </div>
       <div class="lang-switcher">
-        <button class="lang-btn active" id="btn-sv" onclick="setLang('sv')" title="Svenska">🇸��</button>
-        <button class="lang-btn" id="btn-en" onclick="setLang('en')" title="English">🇬🇧</button>
+        <button class="lang-btn active" id="btn-sv" onclick="setLang('sv')" title="Svenska">SV</button>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')" title="English">EN</button>
       </div>
     </div>
 
@@ -318,6 +339,7 @@
     </div>
 
     <button class="calc-btn" onclick="calculate()" id="t-btn"></button>
+    <button class="reset-btn" onclick="resetForm()" id="t-reset"></button>
     <p class="error" id="error"></p>
 
     <div class="result" id="result">
@@ -407,6 +429,7 @@
           rWear:     "Slitage (1,85 kr/km)",
           rTotal:    "Total kostnad (inkl. slitage)",
           rTotalExcl: "Kostnad utan slitage",
+          reset:     "Nollställ"
           distPH:    "0"
         }
       },
@@ -466,6 +489,7 @@
           rWear:     "Wear & tear (1.85 kr/km)",
           rTotal:    "Total cost (incl. wear & tear)",
           rTotalExcl: "Cost excl. wear & tear",
+          reset:     "Reset"
           distPH:    "0"
         }
       }
@@ -493,6 +517,7 @@
       document.getElementById("t-r-price").textContent           = t.rPrice;
 
       document.getElementById("t-btn").textContent               = ts.btn;
+      document.getElementById("t-reset").textContent             = ts.reset;
       document.getElementById("error").textContent               = ts.error;
       document.getElementById("t-breakdown").textContent         = ts.breakdown;
       document.getElementById("t-r-distance").textContent        = ts.rDist;
@@ -511,6 +536,14 @@
       document.getElementById("btn-ev").classList.toggle("active", currentMode === "ev");
 
       if (document.getElementById("result").classList.contains("visible")) calculate(true);
+    }
+
+    function resetForm() {
+      document.getElementById("distance").value    = "";
+      document.getElementById("consumption").value = "";
+      document.getElementById("fuelPrice").value   = "";
+      document.getElementById("error").classList.remove("visible");
+      document.getElementById("result").classList.remove("visible");
     }
 
     function setLang(lang) { currentLang = lang; applyStrings(); }

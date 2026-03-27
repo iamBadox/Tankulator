@@ -4,6 +4,16 @@ All notable changes to Tankulator will be documented here.
 
 ---
 
+## [3.2.0] – 2026-03-27
+
+### Fixed
+- Language toggle now uses text labels (SV / EN) instead of flag emojis, which were rendering as broken characters on some systems
+
+### Added
+- Reset button — clears all inputs and hides the result panel. Label translates with the active language (Nollställ / Reset)
+
+---
+
 ## [3.1.0] – 2026-03-27
 
 ### Changed
