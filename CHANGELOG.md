@@ -4,6 +4,14 @@ All notable changes to Tankulator will be documented here.
 
 ---
 
+## [1.3.0] – 2026-03-27
+
+### Changed
+- Input fields now accept Swedish number format — use commas as decimal separator (e.g. 10,50 instead of 10.50)
+- Both comma and dot accepted so it works regardless of keyboard
+
+---
+
 ## [1.2.0] – 2026-03-27
 
 ### Added

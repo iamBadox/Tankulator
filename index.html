@@ -65,7 +65,7 @@
       position: relative;
     }
 
-    input[type="number"] {
+    input[type="text"] {
       width: 100%;
       background: #0f0f13;
       border: 1px solid #2e2e42;
@@ -75,14 +75,9 @@
       color: #f0f0f0;
       outline: none;
       transition: border-color 0.2s;
-      appearance: textfield;
-      -moz-appearance: textfield;
     }
 
-    input[type="number"]::-webkit-inner-spin-button,
-    input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; }
-
-    input[type="number"]:focus { border-color: #f5a623; }
+    input[type="text"]:focus { border-color: #f5a623; }
 
     .unit {
       position: absolute;
@@ -246,7 +241,7 @@
     <div class="field">
       <label>Distance driven</label>
       <div class="input-wrap">
-        <input type="number" id="distance" placeholder="0" min="0" step="1" />
+        <input type="text" id="distance" placeholder="0" inputmode="decimal" />
         <span class="unit">km</span>
       </div>
     </div>
@@ -254,7 +249,7 @@
     <div class="field">
       <label>Fuel consumption</label>
       <div class="input-wrap">
-        <input type="number" id="consumption" placeholder="0.0" min="0" step="0.1" />
+        <input type="text" id="consumption" placeholder="0,0" inputmode="decimal" />
         <span class="unit">L/mil</span>
       </div>
       <p class="hint">1 mil = 10 km &nbsp;·&nbsp; e.g. 0.7 L/mil is very efficient, 1.2 L/mil is average</p>
@@ -263,7 +258,7 @@
     <div class="field">
       <label>Fuel price</label>
       <div class="input-wrap">
-        <input type="number" id="fuelPrice" placeholder="0.00" min="0" step="0.01" />
+        <input type="text" id="fuelPrice" placeholder="0,00" inputmode="decimal" />
         <span class="unit">kr/L</span>
       </div>
     </div>
@@ -303,10 +298,15 @@
   </div>
 
   <script>
+    function parseSE(val) {
+      // Accept both comma and dot as decimal separator
+      return parseFloat(val.trim().replace(/\s/g, "").replace(",", "."));
+    }
+
     function calculate() {
-      const distance    = parseFloat(document.getElementById("distance").value);
-      const consumption = parseFloat(document.getElementById("consumption").value);
-      const fuelPrice   = parseFloat(document.getElementById("fuelPrice").value);
+      const distance    = parseSE(document.getElementById("distance").value);
+      const consumption = parseSE(document.getElementById("consumption").value);
+      const fuelPrice   = parseSE(document.getElementById("fuelPrice").value);
 
       const error  = document.getElementById("error");
       const result = document.getElementById("result");
