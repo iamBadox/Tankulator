@@ -4,6 +4,18 @@ All notable changes to Tankulator will be documented here.
 
 ---
 
+## [3.2.2] – 2026-03-27
+
+### Fixed
+- Calculate button styling restored — CSS selector was accidentally dropped, causing the button to lose all styling
+
+## [3.2.1] – 2026-03-27
+
+### Fixed
+- JavaScript syntax errors caused by missing commas in the translation object — app was completely non-functional
+
+---
+
 ## [3.2.0] – 2026-03-27
 
 ### Fixed
