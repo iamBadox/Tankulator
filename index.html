@@ -215,6 +215,7 @@
       <div class="result-row"><span>Mils driven</span><span id="r-mil">—</span></div>
       <div class="result-row"><span>Fuel consumed</span><span id="r-fuel">—</span></div>
       <div class="result-row"><span>Fuel price</span><span id="r-price">—</span></div>
+      <div class="result-row"><span>Wear &amp; tear <small style="color:#555">(1.85 kr/km)</small></span><span id="r-wear">—</span></div>
       <div class="result-total">
         <span class="label">Total cost</span>
         <span class="value" id="r-total">—</span>
@@ -239,14 +240,19 @@
 
       error.classList.remove("visible");
 
+      const WEAR_RATE    = 1.85; // Swedish tax authority rate (kr/km)
+
       const mils         = distance / 10;
       const fuelUsed     = mils * consumption;
-      const totalCost    = fuelUsed * fuelPrice;
+      const fuelCost     = fuelUsed * fuelPrice;
+      const wearCost     = distance * WEAR_RATE;
+      const totalCost    = fuelCost + wearCost;
 
       document.getElementById("r-distance").textContent = `${distance.toLocaleString("sv-SE")} km`;
       document.getElementById("r-mil").textContent      = `${mils.toLocaleString("sv-SE", { maximumFractionDigits: 1 })} mil`;
       document.getElementById("r-fuel").textContent     = `${fuelUsed.toLocaleString("sv-SE", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} L`;
       document.getElementById("r-price").textContent    = `${fuelPrice.toLocaleString("sv-SE", { minimumFractionDigits: 2 })} kr/L`;
+      document.getElementById("r-wear").textContent     = `${wearCost.toLocaleString("sv-SE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
       document.getElementById("r-total").textContent    = `${totalCost.toLocaleString("sv-SE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
 
       result.classList.add("visible");
