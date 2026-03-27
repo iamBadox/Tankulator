@@ -248,13 +248,19 @@
       margin-top: 16px;
       padding-top: 16px;
       border-top: 1px solid #2e2e42;
+    }
+
+    .result-total-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 6px 0;
     }
 
-    .result-total .label { font-size: 0.9rem; color: #aaa; }
-    .result-total .value { font-size: 1.6rem; font-weight: 700; color: #f5a623; }
+    .result-total-row .label { font-size: 0.9rem; color: #aaa; }
+    .result-total-row .value { font-size: 1rem; font-weight: 600; color: #f0f0f0; }
+    .result-total-row.main .label { color: #ccc; font-weight: 600; }
+    .result-total-row.main .value { font-size: 1.6rem; font-weight: 700; color: #f5a623; }
 
     .error {
       margin-top: 12px;
@@ -328,8 +334,14 @@
       <div class="result-row"><span id="t-r-price"></span><span id="r-price">—</span></div>
       <div class="result-row"><span id="t-r-wear"></span><span id="r-wear">—</span></div>
       <div class="result-total">
-        <span class="label" id="t-total"></span>
-        <span class="value" id="r-total">—</span>
+        <div class="result-total-row">
+          <span class="label" id="t-total-excl"></span>
+          <span class="value" id="r-total-excl">—</span>
+        </div>
+        <div class="result-total-row main">
+          <span class="label" id="t-total"></span>
+          <span class="value" id="r-total">—</span>
+        </div>
       </div>
     </div>
   </div>
@@ -393,7 +405,8 @@
           rDist:     "Körsträcka",
           rMil:      "Antal mil",
           rWear:     "Slitage (1,85 kr/km)",
-          rTotal:    "Total kostnad",
+          rTotal:    "Total kostnad (inkl. slitage)",
+          rTotalExcl: "Kostnad utan slitage",
           distPH:    "0"
         }
       },
@@ -451,7 +464,8 @@
           rDist:     "Distance",
           rMil:      "Mils driven",
           rWear:     "Wear & tear (1.85 kr/km)",
-          rTotal:    "Total cost",
+          rTotal:    "Total cost (incl. wear & tear)",
+          rTotalExcl: "Cost excl. wear & tear",
           distPH:    "0"
         }
       }
@@ -485,6 +499,7 @@
       document.getElementById("t-r-mil").textContent             = ts.rMil;
       document.getElementById("t-r-wear").innerHTML              = ts.rWear;
       document.getElementById("t-total").textContent             = ts.rTotal;
+      document.getElementById("t-total-excl").textContent        = ts.rTotalExcl;
 
       document.getElementById("distance").placeholder    = ts.distPH;
       document.getElementById("consumption").placeholder = t.consPH;
@@ -536,7 +551,8 @@
       document.getElementById("r-fuel").textContent     = `${fmt(energyUsed, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${unit}`;
       document.getElementById("r-price").textContent    = `${fmt(fuelPrice, { minimumFractionDigits: 2 })} ${t.unitFuel}`;
       document.getElementById("r-wear").textContent     = `${fmt(wearCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
-      document.getElementById("r-total").textContent    = `${fmt(totalCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
+      document.getElementById("r-total-excl").textContent = `${fmt(energyCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
+      document.getElementById("r-total").textContent      = `${fmt(totalCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
 
       result.classList.add("visible");
     }

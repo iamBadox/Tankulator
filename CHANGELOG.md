@@ -4,6 +4,16 @@ All notable changes to Tankulator will be documented here.
 
 ---
 
+## [3.1.0] – 2026-03-27
+
+### Changed
+- Result now shows two totals:
+  - **Cost excl. wear & tear** — fuel/energy cost only
+  - **Total cost (incl. wear & tear)** — the full amount, highlighted in orange
+- Works across all modes (⛽ fuel, ⚡ electric) and both languages (🇸🇪 🇬🇧)
+
+---
+
 ## [3.0.0] – 2026-03-27
 
 ### Added
