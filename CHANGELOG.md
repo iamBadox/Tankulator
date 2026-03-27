@@ -4,6 +4,15 @@ All notable changes to Tankulator will be documented here.
 
 ---
 
+## [1.2.0] – 2026-03-27
+
+### Added
+- Info icon (ℹ) next to "Trip breakdown" — hover to see a full explanation of how each value is calculated
+- Tooltip explains the fuel, wear & tear, and total formulas
+- Wear & tear rate attributed to Transportstyrelsen with a link
+
+---
+
 ## [1.1.0] – 2026-03-27
 
 ### Added

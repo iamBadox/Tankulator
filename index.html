@@ -134,7 +134,70 @@
       letter-spacing: 0.8px;
       color: #888;
       margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
+    .info-wrap {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .info-btn {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #2e2e42;
+      border: 1px solid #444;
+      color: #aaa;
+      font-size: 0.65rem;
+      font-weight: 700;
+      cursor: default;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: #12121a;
+      border: 1px solid #2e2e42;
+      border-radius: 12px;
+      padding: 16px;
+      width: 280px;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      color: #bbb;
+      text-transform: none;
+      letter-spacing: 0;
+      z-index: 10;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+
+    .tooltip::after {
+      content: "";
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #2e2e42;
+    }
+
+    .tooltip b { color: #f0f0f0; }
+    .tooltip a { color: #f5a623; text-decoration: none; }
+    .tooltip a:hover { text-decoration: underline; }
+
+    .info-wrap:hover .tooltip,
+    .info-wrap:focus-within .tooltip { display: block; }
 
     .result-row {
       display: flex;
@@ -210,7 +273,23 @@
     <p class="error" id="error">Please fill in all fields with valid values.</p>
 
     <div class="result" id="result">
-      <p class="result-title">Trip breakdown</p>
+      <p class="result-title">
+        Trip breakdown
+        <span class="info-wrap">
+          <span class="info-btn" tabindex="0">i</span>
+          <span class="tooltip">
+            <b>How it's calculated</b><br><br>
+            <b>Mils driven</b> = distance ÷ 10<br>
+            <b>Fuel used</b> = mils × consumption (L/mil)<br>
+            <b>Fuel cost</b> = fuel used × price per litre<br><br>
+            <b>Wear &amp; tear</b> = distance × 1.85 kr/km<br>
+            Based on the Swedish standard rate set by
+            <a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsen</a>,
+            used for tax deductions and expense reimbursement.<br><br>
+            <b>Total</b> = fuel cost + wear &amp; tear
+          </span>
+        </span>
+      </p>
       <div class="result-row"><span>Distance</span><span id="r-distance">—</span></div>
       <div class="result-row"><span>Mils driven</span><span id="r-mil">—</span></div>
       <div class="result-row"><span>Fuel consumed</span><span id="r-fuel">—</span></div>
