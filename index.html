@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tankulator ⛽</title>
+  <title>Tankulator</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -28,12 +28,44 @@
       box-shadow: 0 24px 64px rgba(0,0,0,0.5);
     }
 
-    .lang-switcher {
+    .top-bar {
       display: flex;
-      justify-content: flex-end;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
       margin-bottom: 24px;
     }
+
+    /* Mode toggle pill */
+    .mode-toggle {
+      display: flex;
+      background: #0f0f13;
+      border: 1px solid #2e2e42;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .mode-btn {
+      background: none;
+      border: none;
+      padding: 6px 14px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #555;
+      transition: background 0.2s, color 0.2s;
+      width: auto;
+      margin-top: 0;
+      border-radius: 0;
+    }
+
+    .mode-btn.active {
+      background: #2e2e42;
+      color: #f0f0f0;
+    }
+
+    .mode-btn:hover:not(.active) { color: #aaa; }
+
+    /* Lang flags */
+    .lang-switcher { display: flex; gap: 8px; }
 
     .lang-btn {
       font-size: 1.4rem;
@@ -52,10 +84,7 @@
     .lang-btn.active { border-color: #f5a623; }
     .lang-btn:active { transform: scale(0.95); }
 
-    .header {
-      text-align: center;
-      margin-bottom: 36px;
-    }
+    .header { text-align: center; margin-bottom: 36px; }
 
     .header h1 {
       font-size: 2rem;
@@ -64,12 +93,7 @@
     }
 
     .header h1 span { color: #f5a623; }
-
-    .header p {
-      color: #888;
-      font-size: 0.9rem;
-      margin-top: 6px;
-    }
+    .header p { color: #888; font-size: 0.9rem; margin-top: 6px; }
 
     .field { margin-bottom: 20px; }
 
@@ -90,7 +114,7 @@
       background: #0f0f13;
       border: 1px solid #2e2e42;
       border-radius: 10px;
-      padding: 12px 52px 12px 16px;
+      padding: 12px 72px 12px 16px;
       font-size: 1rem;
       color: #f0f0f0;
       outline: none;
@@ -104,16 +128,13 @@
       right: 14px;
       top: 50%;
       transform: translateY(-50%);
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: #666;
       pointer-events: none;
+      white-space: nowrap;
     }
 
-    .hint {
-      font-size: 0.75rem;
-      color: #555;
-      margin-top: 6px;
-    }
+    .hint { font-size: 0.75rem; color: #555; margin-top: 6px; }
 
     button.calc-btn {
       width: 100%;
@@ -154,11 +175,7 @@
       gap: 8px;
     }
 
-    .info-wrap {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-    }
+    .info-wrap { position: relative; display: inline-flex; align-items: center; }
 
     .info-btn {
       width: 18px;
@@ -187,7 +204,7 @@
       border: 1px solid #2e2e42;
       border-radius: 12px;
       padding: 16px;
-      width: 280px;
+      width: 290px;
       font-size: 0.78rem;
       line-height: 1.6;
       color: #bbb;
@@ -253,13 +270,19 @@
 <body>
   <div class="card">
 
-    <div class="lang-switcher">
-      <button class="lang-btn active" id="btn-sv" onclick="setLang('sv')" title="Svenska">🇸🇪</button>
-      <button class="lang-btn" id="btn-en" onclick="setLang('en')" title="English">🇬🇧</button>
+    <div class="top-bar">
+      <div class="mode-toggle">
+        <button class="mode-btn active" id="btn-fuel" onclick="setMode('fuel')">⛽</button>
+        <button class="mode-btn" id="btn-ev" onclick="setMode('ev')">⚡</button>
+      </div>
+      <div class="lang-switcher">
+        <button class="lang-btn active" id="btn-sv" onclick="setLang('sv')" title="Svenska">🇸��</button>
+        <button class="lang-btn" id="btn-en" onclick="setLang('en')" title="English">🇬🇧</button>
+      </div>
     </div>
 
     <div class="header">
-      <h1>Tank<span>ulator</span> ⛽</h1>
+      <h1>Tank<span>ulator</span> <span id="t-icon">⛽</span></h1>
       <p id="t-subtitle"></p>
     </div>
 
@@ -275,7 +298,7 @@
       <label id="t-label-consumption"></label>
       <div class="input-wrap">
         <input type="text" id="consumption" inputmode="decimal" />
-        <span class="unit">L/mil</span>
+        <span class="unit" id="unit-consumption"></span>
       </div>
       <p class="hint" id="t-hint"></p>
     </div>
@@ -284,12 +307,11 @@
       <label id="t-label-fuel"></label>
       <div class="input-wrap">
         <input type="text" id="fuelPrice" inputmode="decimal" />
-        <span class="unit">kr/L</span>
+        <span class="unit" id="unit-fuel"></span>
       </div>
     </div>
 
     <button class="calc-btn" onclick="calculate()" id="t-btn"></button>
-
     <p class="error" id="error"></p>
 
     <div class="result" id="result">
@@ -302,7 +324,7 @@
       </p>
       <div class="result-row"><span id="t-r-distance"></span><span id="r-distance">—</span></div>
       <div class="result-row"><span id="t-r-mil"></span><span id="r-mil">—</span></div>
-      <div class="result-row"><span id="t-r-fuel"></span><span id="r-fuel">—</span></div>
+      <div class="result-row"><span id="t-r-energy"></span><span id="r-fuel">—</span></div>
       <div class="result-row"><span id="t-r-price"></span><span id="r-price">—</span></div>
       <div class="result-row"><span id="t-r-wear"></span><span id="r-wear">—</span></div>
       <div class="result-total">
@@ -317,100 +339,167 @@
 
     const i18n = {
       sv: {
-        lang:         "sv",
-        subtitle:     "Beräkna kostnaden för din resa",
-        labelDist:    "Körsträcka",
-        labelCons:    "Bränsleförbrukning",
-        labelFuel:    "Pris för drivmedel",
-        hint:         "1 mil = 10 km &nbsp;·&nbsp; t.ex. 0,7 L/mil är mycket bra, 1,2 L/mil är normalt",
-        btn:          "Beräkna ⚡",
-        error:        "Fyll i alla fält med giltiga värden.",
-        breakdown:    "Reseöversikt",
-        rDist:        "Körsträcka",
-        rMil:         "Antal mil",
-        rFuel:        "Bränsle",
-        rPrice:       "Bensinpris",
-        rWear:        "Slitage (1,85 kr/km)",
-        rTotal:       "Total kostnad",
-        distPH:       "0",
-        consPH:       "0,0",
-        fuelPH:       "0,00",
-        locale:       "sv-SE",
-        tooltip: `<b>Så här beräknas det</b><br><br>
-          <b>Antal mil</b> = körsträcka ÷ 10<br>
-          <b>Bränsle</b> = mil × förbrukning (L/mil)<br>
-          <b>Bränslekostnad</b> = bränsle × pris per liter<br><br>
-          <b>Slitage</b> = körsträcka × 1,85 kr/km<br>
-          Baserat på Skatteverkets och
-          <a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsens</a>
-          schablonbelopp för milersättning och skatteändamål.<br><br>
-          <b>Totalt</b> = bränslekostnad + slitage`
+        locale: "sv-SE",
+        fuel: {
+          icon:      "⛽",
+          subtitle:  "Beräkna kostnaden för din resa",
+          labelDist: "Körsträcka",
+          labelCons: "Bränsleförbrukning",
+          labelFuel: "Pris för drivmedel",
+          unitCons:  "L/mil",
+          unitFuel:  "kr/L",
+          hint:      "1 mil = 10 km &nbsp;·&nbsp; t.ex. 0,7 L/mil är mycket bra, 1,2 L/mil är normalt",
+          consPH:    "0,0",
+          fuelPH:    "0,00",
+          rEnergy:   "Bränsle",
+          rPrice:    "Drivmedelspris",
+          tooltip: `<b>Så här beräknas det</b><br><br>
+            <b>Antal mil</b> = körsträcka ÷ 10<br>
+            <b>Bränsle</b> = mil × förbrukning (L/mil)<br>
+            <b>Bränslekostnad</b> = bränsle × pris per liter<br><br>
+            <b>Slitage</b> = körsträcka × 1,85 kr/km<br>
+            Baserat på Skatteverkets och
+            <a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsens</a>
+            schablonbelopp för milersättning och skatteändamål.<br><br>
+            <b>Totalt</b> = bränslekostnad + slitage`
+        },
+        ev: {
+          icon:      "⚡",
+          subtitle:  "Beräkna kostnaden för din elresa",
+          labelDist: "Körsträcka",
+          labelCons: "Elförbrukning",
+          labelFuel: "Elpris",
+          unitCons:  "kWh/mil",
+          unitFuel:  "kr/kWh",
+          hint:      "1 mil = 10 km &nbsp;·&nbsp; t.ex. 1,5 kWh/mil är mycket bra, 2,5 kWh/mil är normalt",
+          consPH:    "0,0",
+          fuelPH:    "0,00",
+          rEnergy:   "Förbrukad el",
+          rPrice:    "Elpris",
+          tooltip: `<b>Så här beräknas det</b><br><br>
+            <b>Antal mil</b> = körsträcka ÷ 10<br>
+            <b>Förbrukad el</b> = mil × förbrukning (kWh/mil)<br>
+            <b>Elkostnad</b> = förbrukad el × elpris (kr/kWh)<br><br>
+            <b>Slitage</b> = körsträcka × 1,85 kr/km<br>
+            Slitage gäller även elbilar. Baserat på Skatteverkets och
+            <a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsens</a>
+            schablonbelopp.<br><br>
+            <b>Totalt</b> = elkostnad + slitage`
+        },
+        shared: {
+          btn:       "Beräkna ⚡",
+          error:     "Fyll i alla fält med giltiga värden.",
+          breakdown: "Reseöversikt",
+          rDist:     "Körsträcka",
+          rMil:      "Antal mil",
+          rWear:     "Slitage (1,85 kr/km)",
+          rTotal:    "Total kostnad",
+          distPH:    "0"
+        }
       },
       en: {
-        lang:         "en",
-        subtitle:     "Calculate the cost of your road trip",
-        labelDist:    "Distance driven",
-        labelCons:    "Fuel consumption",
-        labelFuel:    "Fuel price",
-        hint:         "1 mil = 10 km &nbsp;·&nbsp; e.g. 0.7 L/mil is very efficient, 1.2 L/mil is average",
-        btn:          "Calculate ⚡",
-        error:        "Please fill in all fields with valid values.",
-        breakdown:    "Trip breakdown",
-        rDist:        "Distance",
-        rMil:         "Mils driven",
-        rFuel:        "Fuel consumed",
-        rPrice:       "Fuel price",
-        rWear:        "Wear & tear (1.85 kr/km)",
-        rTotal:       "Total cost",
-        distPH:       "0",
-        consPH:       "0.0",
-        fuelPH:       "0.00",
-        locale:       "en-GB",
-        tooltip: `<b>How it's calculated</b><br><br>
-          <b>Mils driven</b> = distance ÷ 10<br>
-          <b>Fuel used</b> = mils × consumption (L/mil)<br>
-          <b>Fuel cost</b> = fuel used × price per litre<br><br>
-          <b>Wear &amp; tear</b> = distance × 1.85 kr/km<br>
-          Based on the standard rate set by the Swedish Transport Agency
-          (<a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsen</a>),
-          used for tax deductions and expense reimbursement.<br><br>
-          <b>Total</b> = fuel cost + wear &amp; tear`
+        locale: "en-GB",
+        fuel: {
+          icon:      "⛽",
+          subtitle:  "Calculate the cost of your road trip",
+          labelDist: "Distance driven",
+          labelCons: "Fuel consumption",
+          labelFuel: "Fuel price",
+          unitCons:  "L/mil",
+          unitFuel:  "kr/L",
+          hint:      "1 mil = 10 km &nbsp;·&nbsp; e.g. 0.7 L/mil is very efficient, 1.2 L/mil is average",
+          consPH:    "0.0",
+          fuelPH:    "0.00",
+          rEnergy:   "Fuel consumed",
+          rPrice:    "Fuel price",
+          tooltip: `<b>How it's calculated</b><br><br>
+            <b>Mils driven</b> = distance ÷ 10<br>
+            <b>Fuel used</b> = mils × consumption (L/mil)<br>
+            <b>Fuel cost</b> = fuel used × price per litre<br><br>
+            <b>Wear &amp; tear</b> = distance × 1.85 kr/km<br>
+            Based on the standard rate set by the Swedish Transport Agency
+            (<a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsen</a>),
+            used for tax deductions and expense reimbursement.<br><br>
+            <b>Total</b> = fuel cost + wear &amp; tear`
+        },
+        ev: {
+          icon:      "⚡",
+          subtitle:  "Calculate the cost of your electric road trip",
+          labelDist: "Distance driven",
+          labelCons: "Energy consumption",
+          labelFuel: "Electricity price",
+          unitCons:  "kWh/mil",
+          unitFuel:  "kr/kWh",
+          hint:      "1 mil = 10 km &nbsp;·&nbsp; e.g. 1.5 kWh/mil is very efficient, 2.5 kWh/mil is average",
+          consPH:    "0.0",
+          fuelPH:    "0.00",
+          rEnergy:   "Energy used",
+          rPrice:    "Electricity price",
+          tooltip: `<b>How it's calculated</b><br><br>
+            <b>Mils driven</b> = distance ÷ 10<br>
+            <b>Energy used</b> = mils × consumption (kWh/mil)<br>
+            <b>Energy cost</b> = energy used × electricity price (kr/kWh)<br><br>
+            <b>Wear &amp; tear</b> = distance × 1.85 kr/km<br>
+            Wear & tear applies to electric cars too. Based on the rate set by the Swedish Transport Agency
+            (<a href="https://www.transportstyrelsen.se" target="_blank" rel="noopener">Transportstyrelsen</a>).<br><br>
+            <b>Total</b> = energy cost + wear &amp; tear`
+        },
+        shared: {
+          btn:       "Calculate ⚡",
+          error:     "Please fill in all fields with valid values.",
+          breakdown: "Trip breakdown",
+          rDist:     "Distance",
+          rMil:      "Mils driven",
+          rWear:     "Wear & tear (1.85 kr/km)",
+          rTotal:    "Total cost",
+          distPH:    "0"
+        }
       }
     };
 
     let currentLang = "sv";
+    let currentMode = "fuel";
 
-    function setLang(lang) {
-      currentLang = lang;
-      const t = i18n[lang];
-      document.documentElement.lang = lang;
+    function applyStrings() {
+      const t  = i18n[currentLang][currentMode];
+      const ts = i18n[currentLang].shared;
+      const locale = i18n[currentLang].locale;
 
-      document.getElementById("t-subtitle").textContent        = t.subtitle;
-      document.getElementById("t-label-distance").textContent  = t.labelDist;
+      document.documentElement.lang = currentLang;
+      document.getElementById("t-icon").textContent              = t.icon;
+      document.getElementById("t-subtitle").textContent          = t.subtitle;
+      document.getElementById("t-label-distance").textContent    = t.labelDist;
       document.getElementById("t-label-consumption").textContent = t.labelCons;
-      document.getElementById("t-label-fuel").textContent      = t.labelFuel;
-      document.getElementById("t-hint").innerHTML              = t.hint;
-      document.getElementById("t-btn").textContent             = t.btn;
-      document.getElementById("error").textContent             = t.error;
-      document.getElementById("t-breakdown").textContent       = t.breakdown;
-      document.getElementById("t-tooltip").innerHTML           = t.tooltip;
-      document.getElementById("t-r-distance").textContent      = t.rDist;
-      document.getElementById("t-r-mil").textContent           = t.rMil;
-      document.getElementById("t-r-fuel").textContent          = t.rFuel;
-      document.getElementById("t-r-price").textContent         = t.rPrice;
-      document.getElementById("t-r-wear").innerHTML            = t.rWear;
-      document.getElementById("t-total").textContent           = t.rTotal;
+      document.getElementById("t-label-fuel").textContent        = t.labelFuel;
+      document.getElementById("unit-consumption").textContent    = t.unitCons;
+      document.getElementById("unit-fuel").textContent           = t.unitFuel;
+      document.getElementById("t-hint").innerHTML                = t.hint;
+      document.getElementById("t-tooltip").innerHTML             = t.tooltip;
+      document.getElementById("t-r-energy").textContent          = t.rEnergy;
+      document.getElementById("t-r-price").textContent           = t.rPrice;
 
-      document.getElementById("distance").placeholder    = t.distPH;
+      document.getElementById("t-btn").textContent               = ts.btn;
+      document.getElementById("error").textContent               = ts.error;
+      document.getElementById("t-breakdown").textContent         = ts.breakdown;
+      document.getElementById("t-r-distance").textContent        = ts.rDist;
+      document.getElementById("t-r-mil").textContent             = ts.rMil;
+      document.getElementById("t-r-wear").innerHTML              = ts.rWear;
+      document.getElementById("t-total").textContent             = ts.rTotal;
+
+      document.getElementById("distance").placeholder    = ts.distPH;
       document.getElementById("consumption").placeholder = t.consPH;
       document.getElementById("fuelPrice").placeholder   = t.fuelPH;
 
-      document.getElementById("btn-sv").classList.toggle("active", lang === "sv");
-      document.getElementById("btn-en").classList.toggle("active", lang === "en");
+      document.getElementById("btn-sv").classList.toggle("active", currentLang === "sv");
+      document.getElementById("btn-en").classList.toggle("active", currentLang === "en");
+      document.getElementById("btn-fuel").classList.toggle("active", currentMode === "fuel");
+      document.getElementById("btn-ev").classList.toggle("active", currentMode === "ev");
 
-      // Re-render results if visible
       if (document.getElementById("result").classList.contains("visible")) calculate(true);
     }
+
+    function setLang(lang) { currentLang = lang; applyStrings(); }
+    function setMode(mode) { currentMode = mode; applyStrings(); }
 
     function parseNum(val) {
       return parseFloat(val.trim().replace(/\s/g, "").replace(",", "."));
@@ -424,38 +513,35 @@
       const error  = document.getElementById("error");
       const result = document.getElementById("result");
       const locale = i18n[currentLang].locale;
+      const t      = i18n[currentLang][currentMode];
 
       if (!distance || !consumption || !fuelPrice || distance <= 0 || consumption <= 0 || fuelPrice <= 0) {
-        if (!silent) {
-          error.classList.add("visible");
-          result.classList.remove("visible");
-        }
+        if (!silent) { error.classList.add("visible"); result.classList.remove("visible"); }
         return;
       }
 
       error.classList.remove("visible");
 
-      const mils      = distance / 10;
-      const fuelUsed  = mils * consumption;
-      const fuelCost  = fuelUsed * fuelPrice;
-      const wearCost  = distance * WEAR_RATE;
-      const totalCost = fuelCost + wearCost;
+      const mils        = distance / 10;
+      const energyUsed  = mils * consumption;
+      const energyCost  = energyUsed * fuelPrice;
+      const wearCost    = distance * WEAR_RATE;
+      const totalCost   = energyCost + wearCost;
 
       const fmt = (n, opts) => n.toLocaleString(locale, opts);
+      const unit = currentMode === "ev" ? " kWh" : " L";
 
       document.getElementById("r-distance").textContent = `${fmt(distance)} km`;
       document.getElementById("r-mil").textContent      = `${fmt(mils, { maximumFractionDigits: 1 })} mil`;
-      document.getElementById("r-fuel").textContent     = `${fmt(fuelUsed, { minimumFractionDigits: 1, maximumFractionDigits: 1 })} L`;
-      document.getElementById("r-price").textContent    = `${fmt(fuelPrice, { minimumFractionDigits: 2 })} kr/L`;
+      document.getElementById("r-fuel").textContent     = `${fmt(energyUsed, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}${unit}`;
+      document.getElementById("r-price").textContent    = `${fmt(fuelPrice, { minimumFractionDigits: 2 })} ${t.unitFuel}`;
       document.getElementById("r-wear").textContent     = `${fmt(wearCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
       document.getElementById("r-total").textContent    = `${fmt(totalCost, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} kr`;
 
       result.classList.add("visible");
     }
 
-    // Boot in Swedish
-    setLang("sv");
-
+    applyStrings();
     document.addEventListener("keydown", e => { if (e.key === "Enter") calculate(); });
   </script>
 </body>

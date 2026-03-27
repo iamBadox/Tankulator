@@ -4,6 +4,21 @@ All notable changes to Tankulator will be documented here.
 
 ---
 
+## [3.0.0] – 2026-03-27
+
+### Added
+- ⚡ Electric car mode — toggle between ⛽ Fuel and ⚡ Electric using the pill button top left
+- EV mode uses kWh/mil for consumption and kr/kWh for electricity price
+- EV result row shows "Energy used (kWh)" instead of "Fuel consumed (L)"
+- EV tooltip explains the calculation in both Swedish and English
+- Swedish EV tooltip notes that wear & tear applies to electric cars too
+- App icon in the title updates to match the selected mode
+
+### Changed
+- Mode toggle and language flags now sit in the same top bar
+
+---
+
 ## [2.0.0] – 2026-03-27
 
 ### Added
